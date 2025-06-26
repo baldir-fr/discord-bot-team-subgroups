@@ -1,9 +1,9 @@
-import {FixtureIds, InMemoryDiscordApi} from "../lib/discord_api.ts";
+import {InMemoryDiscordApi} from "../lib/discord_api.ts";
 import {createHandler, ServeHandlerInfo} from "$fresh/server.ts";
 import manifest from "../fresh.gen.ts";
 import config from "../fresh.config.ts";
 import {expect} from "jsr:@std/expect";
-import {provide} from "../_dependency_injection/dependency_container.ts";
+import {inject, provide,} from "../_dependency_injection/dependency_container.ts";
 import {InjectKey} from "../_dependency_injection/injection_keys.ts";
 import {SeededPseudoRandom} from "../lib/PseudoRandom.ts";
 
@@ -35,8 +35,21 @@ acceptance_test("HTTP assert test.", async (t) => {
   });
 });
 
-async function generateMessage(role: string, maxGroupSize: number) {
-  return "";
+async function membersInRoleNamed(roleName: string) {
+  const discord = inject(InjectKey.DISCORD_API);
+  const guildRole = await discord.getGuildRole(roleName);
+  if (guildRole === null) {
+    throw new Error("Could not find guild role named '" + roleName + "'");
+  }
+  const roleId = guildRole.id;
+
+  const allMembers = await discord.getAllGuildMembers();
+  return allMembers.filter((it) => it.roles.includes(roleId));
+}
+
+async function generateMessage(roleName: string, maxGroupSize: number) {
+  const membersInRole = await membersInRoleNamed(roleName);
+  return membersInRole.map((it) => it.nick).join(", ");
 }
 
 test(
@@ -45,12 +58,12 @@ test(
     provide(InjectKey.DISCORD_API, new InMemoryDiscordApi());
     provide(InjectKey.PSEUDO_RANDOM, new SeededPseudoRandom(1n));
 
-    const message = await generateMessage(FixtureIds.ROLE_PROMO_A, 3);
-    expect(message).toBe("");
+    const message = await generateMessage("promo-a", 3);
+    expect(message).toBe(
+      "Ada Lovelace, Alistair Cockburn, Jessica Kerr, Daniel Terhorst-North, Felienne Hermans, Grace Hopper, Houleymatou Baldé, JB Rainsberger, Kent Beck, Niklaus Wirth",
+    );
   },
 );
-
-
 
 /*
 
