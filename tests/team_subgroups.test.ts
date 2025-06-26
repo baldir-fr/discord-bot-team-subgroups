@@ -16,23 +16,42 @@ const CONN_INFO: ServeHandlerInfo = <ServeHandlerInfo> {
 };
 
 acceptance_test("HTTP assert test.", async (t) => {
-  provide(InjectKey.DISCORD_API, new InMemoryDiscordApi());
+  const inMemoryDiscordApi = new InMemoryDiscordApi();
+  provide(InjectKey.DISCORD_API, inMemoryDiscordApi);
   provide(InjectKey.PSEUDO_RANDOM, new SeededPseudoRandom(1n));
   const handler = await createHandler(manifest, config);
 
   await t.step("#2 POST /interactions", async () => {
     const formData = new FormData();
+    // FIXME: change with real params
     formData.append("text", "Deno!");
+
     const req = new Request("http://127.0.0.1/api/interactions", {
       method: "POST",
       body: formData,
     });
-    const resp = await handler(req, CONN_INFO);
-    const text = await resp.text();
-    expect(text).toContain(`Le sous-groupe "Foobar" sera composé de:
-    - Foo Bar
-    - Baz Buzz
-    - Bizz Boos`);
+    await handler(req, CONN_INFO);
+
+    expect(inMemoryDiscordApi.sentMessages).toStrictEqual([
+      {
+        channelId: "foo",
+        message: `Groupe "D" :
+- JB Rainsberger
+- Daniel Terhorst-North
+- Alistair Cockburn
+- Grace Hopper
+
+Groupe "F" :
+- Kent Beck
+- Felienne Hermans
+- Houleymatou Baldé
+
+Groupe "A" :
+- Niklaus Wirth
+- Jessica Kerr
+- Ada Lovelace`,
+      },
+    ]);
   });
 });
 

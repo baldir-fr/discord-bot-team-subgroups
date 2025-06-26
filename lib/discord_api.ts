@@ -38,6 +38,9 @@ export const FixtureIds = {
   MEMBER_B_WARD: "00B8E9AB-4A84-49EF-A1F1-4CC49F823EAE",
 };
 export class InMemoryDiscordApi implements DiscordApi {
+  get sentMessages(): { channelId: string; message: string }[] {
+    return this._sentMessages;
+  }
   roles: DiscordGuildRole[] = [
     { id: FixtureIds.ROLE_PROMO_A, name: "promo-a" },
     { id: FixtureIds.ROLE_PROMO_B, name: "promo-b" },
@@ -68,13 +71,13 @@ export class InMemoryDiscordApi implements DiscordApi {
     { id: FixtureIds.MEMBER_B_WARD, nick: "Ward Cunningham", roles: [FixtureIds.ROLE_PROMO_B] },
 
   ];
-  sentMessages: { channelId: string; message: string }[] = [];
+  private _sentMessages: { channelId: string; message: string }[] = [];
 
   async createMessage(
     channelId: DiscordSnowflake,
     messageRequest: DiscordCreateMessageRequest,
   ): Promise<void> {
-    this.sentMessages.push({ channelId, message: messageRequest.content });
+    this._sentMessages.push({ channelId, message: messageRequest.content });
   }
   async getAllGuildMembers(): Promise<Array<DiscordGuildMember>> {
     return this.members;
