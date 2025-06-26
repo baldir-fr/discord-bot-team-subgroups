@@ -45,20 +45,20 @@ test(
     const message = await generateSubgroupMessage("promo-a", 4);
     expect(message).toBe(
       `Groupe "D" :
-- Ada Lovelace
-- Alistair Cockburn
-- Jessica Kerr
+- JB Rainsberger
 - Daniel Terhorst-North
+- Alistair Cockburn
+- Grace Hopper
 
 Groupe "F" :
+- Kent Beck
 - Felienne Hermans
-- Grace Hopper
 - Houleymatou Baldé
 
 Groupe "A" :
-- JB Rainsberger
-- Kent Beck
-- Niklaus Wirth`,
+- Niklaus Wirth
+- Jessica Kerr
+- Ada Lovelace`,
     );
   },
 );

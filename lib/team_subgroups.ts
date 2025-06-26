@@ -26,7 +26,7 @@ export async function generateSubgroupMessage(
 ) {
     const groupNames = toShuffledArray(["A", "B", "C", "D", "E", "F"]);
 
-    const membersInRole = await membersInRoleNamed(roleName);
+    const membersInRole = toShuffledArray(await membersInRoleNamed(roleName));
 
     const groupCompositions = asGroupCompositions(membersInRole, maxSubgroupSize);
     // [ 4, 3, 3 ]
