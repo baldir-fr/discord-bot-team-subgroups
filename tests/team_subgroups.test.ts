@@ -21,7 +21,7 @@ acceptance_test("HTTP assert test.", async (t) => {
   provide(InjectKey.PSEUDO_RANDOM, new SeededPseudoRandom(1n));
   const handler = await createHandler(manifest, config);
 
-  await t.step("#2 POST /interactions", async () => {
+  await t.step("POST /interactions", async () => {
     const formData = new FormData();
     // FIXME: change with real params
     formData.append("text", "Deno!");
