@@ -2,7 +2,7 @@ import { createHandler, ServeHandlerInfo } from "$fresh/server.ts";
 import manifest from "../fresh.gen.ts";
 import config from "../fresh.config.ts";
 import { expect } from "jsr:@std/expect";
-import { provide } from "../_dependency_injection/dependency_container.ts";
+import { provide } from "../_dependency_injection/container.ts";
 import { InjectKey } from "../_dependency_injection/injection_keys.ts";
 import { SeededPseudoRandom } from "../lib/pseudo_random/index.ts";
 import { generateSubgroupMessage } from "../lib/team_subgroups.ts";

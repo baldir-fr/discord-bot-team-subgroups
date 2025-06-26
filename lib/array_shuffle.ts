@@ -1,4 +1,4 @@
-import { inject } from "../_dependency_injection/dependency_container.ts";
+import { inject } from "../_dependency_injection/container.ts";
 import { InjectKey } from "../_dependency_injection/injection_keys.ts";
 
 /**

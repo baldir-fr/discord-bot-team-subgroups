@@ -1,4 +1,4 @@
-import { provide } from "./dependency_container.ts";
+import { provide } from "./container.ts";
 import { InjectKey } from "./injection_keys.ts";
 import { SeededPseudoRandom } from "../lib/pseudo_random/index.ts";
 import { InMemoryDiscordApi } from "../lib/discord_api/in_memory.ts";
