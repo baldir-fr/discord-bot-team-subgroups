@@ -52,66 +52,22 @@ type SubGroup = {
   members: DiscordGuildMember[];
 };
 
-async function generateSubgroupMessage(roleName: string, subgroupSize: number) {
+async function generateSubgroupMessage(
+  roleName: string,
+  maxSubgroupSize: number,
+) {
   const groupNames = ["A", "B", "C", "D", "E", "F"];
 
   const membersInRole = await membersInRoleNamed(roleName);
 
-  // Group size cannot be less than maxGroupSize-1
-  // Ventilate 1 member in some groups
-
-  const numberOfGroups = Math.floor(membersInRole.length / subgroupSize);
-
-  // 3
-
-  let membersWithoutGroup = membersInRole.length % subgroupSize;
-
-  const groupCompositions: number[] = [];
-  for (let i = 0; i < numberOfGroups; i++) {
-    let extraMember = 0;
-    if (membersWithoutGroup > 0) {
-      extraMember++;
-      membersWithoutGroup--;
-    }
-    groupCompositions.push(subgroupSize + extraMember);
-  }
-  // 3 + 1
-  // 3
-  // 3
-
+  const groupCompositions = asGroupCompositions(membersInRole, maxSubgroupSize);
   // [ 4, 3, 3 ]
 
-  // current index
-  let currentMemberIndex = 0;
-  const groupsIndexes = groupCompositions.map((value) => {
-    // [ 4, 3, 3 ]
-    // 4 0 => [ 0, 1, 2, 3 ]
-    // 3 1 => [
-    // 3 2 =>
-
-    const indexes: number[] = [];
-    for (let i = 0; i < value; i++) {
-      indexes.push(currentMemberIndex);
-      currentMemberIndex++;
-    }
-    return indexes;
-  });
-  // [ [ 0, 1, 2, 3 ],  [ 4, 5, 6 ]   [ 7, 8, 9 ] ]
-
-  const subgroups: SubGroup[] = groupsIndexes.map((membersIndexes, index) => ({
-    name: groupNames[index],
-    members: membersIndexes.map((mi) => membersInRole[mi]),
-  }));
-
-  const subgroupsMessages = subgroups
-    .map((sg) => {
-      const sgMembers = sg.members.map((m) => m.nick).join("\n- ");
-      let s = `Groupe "${sg.name}" :
-- ${sgMembers}`;
-      return s;
-    });
-
-  return subgroupsMessages.join("\n\n");
+  return groupCompositions
+    .reduce(toGroupIndexes, []) // [ [ 0, 1, 2, 3 ],  [ 4, 5, 6 ]   [ 7, 8, 9 ] ]
+    .map(toSubGroup(groupNames, membersInRole)) // [ { name:"A", members: [...]}, ... ]
+    .map(toSubgroupMessage)
+    .join("\n\n");
 }
 
 test(
@@ -120,7 +76,7 @@ test(
     provide(InjectKey.DISCORD_API, new InMemoryDiscordApi());
     provide(InjectKey.PSEUDO_RANDOM, new SeededPseudoRandom(1n));
 
-    const message = await generateSubgroupMessage("promo-a", 3);
+    const message = await generateSubgroupMessage("promo-a", 4);
     expect(message).toBe(
       `Groupe "A" :
 - Ada Lovelace
@@ -158,3 +114,96 @@ Groupe "C" :
 		- autocomplete pour le nom des rôles de guilde (ex. promo-a, promo-b)
 			- https://discord.com/developers/docs/interactions/application-commands#autocomplete
  */
+
+/**
+ * Reducer from an array of sizes to arrays of consecutive indexes beginning with 0.
+ *
+ * ```ts
+ * import {expect} from "jsr:@std/expect";
+ *
+ * const groupCompositions = [
+ *   3,
+ *   4,
+ *   2
+ * ]
+ *
+ * const groupIndexes = groupCompositions.reduce(toGroupIndexes, []);
+ *
+ * expect(groupIndexes).toStrictEqual([
+ *     [0, 1, 2],
+ *     [3, 4, 5, 6],
+ *     [7, 8]
+ *   ])
+ * ```
+ * @param previousValue
+ * @param currentGroupNumberOfMembers
+ */
+export function toGroupIndexes(
+  previousValue: number[][],
+  currentGroupNumberOfMembers: number,
+) {
+  let memberIndexInCurrentGroup = previousValue.flat().length;
+  const group: number[] = [];
+  for (let i = 0; i < currentGroupNumberOfMembers; i++) {
+    group.push(memberIndexInCurrentGroup);
+    memberIndexInCurrentGroup++;
+  }
+  return [...previousValue, group];
+}
+
+/**
+ * ```ts
+ * import {expect} from "jsr:@std/expect";
+ *
+ * const maxSubgroupSize = 4
+ * const anArray=[
+ *   "a", "b", "c", "d",
+ *   "e", "f", "g",
+ *   "h", "i", "j"
+ *   ]
+ *
+ * const groupCompositions = asGroupCompositions(anArray,maxSubgroupSize)
+ *
+ * expect(groupCompositions).toStrictEqual([ 4, 3, 3 ])
+ * ```
+ * @return number of members per subgroups
+ */
+export function asGroupCompositions(
+  anArray: unknown[],
+  maxSubgroupSize: number,
+): number[] {
+
+  const subGroupSize = maxSubgroupSize - 1;
+  const numberOfGroups = Math.floor(anArray.length / subGroupSize);
+
+  let membersWithoutGroup = anArray.length % subGroupSize;
+  const groupCompositions: number[] = [];
+  for (let i = 0; i < numberOfGroups; i++) {
+    let extraMember = 0;
+    if (membersWithoutGroup > 0) {
+      extraMember++;
+      membersWithoutGroup--;
+    }
+    groupCompositions.push(subGroupSize + extraMember);
+  }
+  return groupCompositions;
+}
+
+export function toSubgroupMessage(subGroup: SubGroup) {
+  const membersList = subGroup.members
+    .map((member) => member.nick)
+    .join("\n- ");
+
+  return `Groupe "${subGroup.name}" :
+- ${membersList}`;
+}
+
+export function toSubGroup(
+  groupNames: string[],
+  membersInRole: DiscordGuildMember[],
+) {
+  return (membersIndexes: number[], index: number) => ({
+    name: groupNames[index],
+    members: membersIndexes.map((memberIndex) => membersInRole[memberIndex]),
+  });
+}
