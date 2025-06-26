@@ -1,5 +1,5 @@
-import { inject } from "../_dependency_injection/container.ts";
-import { InjectKey } from "../_dependency_injection/injection_keys.ts";
+import { inject } from "./dependency_injection/container.ts";
+import { InjectKey } from "./dependency_injection/injection_keys.ts";
 
 /**
  * Needs to have a pseudo random number generator provided with piqure :

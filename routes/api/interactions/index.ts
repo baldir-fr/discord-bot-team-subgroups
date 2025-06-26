@@ -1,6 +1,6 @@
 import { Handlers } from "$fresh/server.ts";
-import { inject } from "../../../_dependency_injection/container.ts";
-import { InjectKey } from "../../../_dependency_injection/injection_keys.ts";
+import { inject } from "../../../lib/dependency_injection/container.ts";
+import { InjectKey } from "../../../lib/dependency_injection/injection_keys.ts";
 import { generateSubgroupMessage } from "../../../lib/team_subgroups.ts";
 import {
   DiscordCreateMessageRequest,
