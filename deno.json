@@ -1,6 +1,8 @@
 {
   "lock": false,
   "tasks": {
+    "test-watch": "deno test  --allow-env --allow-read  --doc --ignore=README.md --watch",
+    "test": "deno test  --allow-env --allow-read  --doc --ignore=README.md",
     "check": "deno fmt --check && deno lint && deno check **/*.ts && deno check **/*.tsx",
     "cli": "echo \"import '\\$fresh/src/dev/cli.ts'\" | deno run --unstable -A -",
     "manifest": "deno task cli manifest $(pwd)",

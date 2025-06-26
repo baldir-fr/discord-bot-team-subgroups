@@ -9,8 +9,14 @@ Make sure to install Deno: https://deno.land/manual/getting_started/installation
 
 Then start the project:
 
-```
+```shell
 deno task start
 ```
 
 This will watch the project directory and restart as necessary.
+
+Run tests (including doctest)
+
+```shell
+deno test --allow-env --allow-read  --doc
+```
