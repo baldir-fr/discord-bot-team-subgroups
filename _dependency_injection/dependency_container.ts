@@ -1,7 +1,7 @@
-import {piqure} from 'npm:piqure';
+import { piqure } from "npm:piqure";
 
 export const {
-    provide,
-    provideLazy,
-    inject,
+  provide,
+  provideLazy,
+  inject,
 } = piqure(new Map());

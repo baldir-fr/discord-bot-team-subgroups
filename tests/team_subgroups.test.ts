@@ -1,11 +1,14 @@
-import {DiscordGuildMember, InMemoryDiscordApi} from "../lib/discord_api.ts";
-import {createHandler, ServeHandlerInfo} from "$fresh/server.ts";
+import { DiscordGuildMember, InMemoryDiscordApi } from "../lib/discord_api.ts";
+import { createHandler, ServeHandlerInfo } from "$fresh/server.ts";
 import manifest from "../fresh.gen.ts";
 import config from "../fresh.config.ts";
-import {expect} from "jsr:@std/expect";
-import {inject, provide,} from "../_dependency_injection/dependency_container.ts";
-import {InjectKey} from "../_dependency_injection/injection_keys.ts";
-import {SeededPseudoRandom} from "../lib/PseudoRandom.ts";
+import { expect } from "jsr:@std/expect";
+import {
+  inject,
+  provide,
+} from "../_dependency_injection/dependency_container.ts";
+import { InjectKey } from "../_dependency_injection/injection_keys.ts";
+import { SeededPseudoRandom } from "../lib/PseudoRandom.ts";
 
 const test = Deno.test;
 const acceptance_test = Deno.test;
@@ -172,7 +175,6 @@ export function asGroupCompositions(
   anArray: unknown[],
   maxSubgroupSize: number,
 ): number[] {
-
   const subGroupSize = maxSubgroupSize - 1;
   const numberOfGroups = Math.floor(anArray.length / subGroupSize);
 

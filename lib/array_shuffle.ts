@@ -1,5 +1,5 @@
-import {inject} from "../_dependency_injection/dependency_container.ts";
-import {InjectKey} from "../_dependency_injection/injection_keys.ts"; // FIXME: write tests
+import { inject } from "../_dependency_injection/dependency_container.ts";
+import { InjectKey } from "../_dependency_injection/injection_keys.ts"; // FIXME: write tests
 
 /**
  * Needs to have a pseudo random number generator provided with piqure :
