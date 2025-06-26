@@ -22,6 +22,7 @@ export type DiscordCreateMessageRequest = {
  * @see https://discord.com/developers/docs/reference#snowflakes
  */
 export type DiscordSnowflake = string;
+
 /**
  * @see https://discord.com/developers/docs/topics/permissions#role-object
  */
