@@ -1,17 +1,14 @@
 import { Prng, randomSeeded } from "jsr:@std/random";
 
-export interface PseudoRandom {
+export interface Index {
   generateNumber(): number;
 }
 
-export class SeededPseudoRandom implements PseudoRandom {
+export class SeededPseudoRandom implements Index {
   generate: Prng;
   constructor(seed: bigint) {
     this.generate = randomSeeded(seed);
   }
-
-  // 💡Remember doctest exists
-  //   https://docs.deno.com/runtime/fundamentals/testing/#documentation-tests
 
   generateNumber(): number {
     return this.generate();

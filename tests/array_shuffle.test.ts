@@ -1,7 +1,7 @@
 import { expect } from "jsr:@std/expect";
 import { provide } from "../_dependency_injection/dependency_container.ts";
 import { InjectKey } from "../_dependency_injection/injection_keys.ts";
-import { SeededPseudoRandom } from "../lib/PseudoRandom.ts";
+import { SeededPseudoRandom } from "../lib/pseudo_random/index.ts";
 import { toShuffledArray } from "../lib/array_shuffle.ts";
 
 Deno.test(

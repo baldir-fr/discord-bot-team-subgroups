@@ -1,11 +1,14 @@
-import {Handlers} from "$fresh/server.ts";
-import {inject} from "../../../_dependency_injection/dependency_container.ts";
-import {InjectKey} from "../../../_dependency_injection/injection_keys.ts";
-import {generateSubgroupMessage} from "../../../lib/team_subgroups.ts";
-import {DiscordCreateMessageRequest, DiscordSnowflake,} from "../../../lib/discord_api.ts";
+import { Handlers } from "$fresh/server.ts";
+import { inject } from "../../../_dependency_injection/dependency_container.ts";
+import { InjectKey } from "../../../_dependency_injection/injection_keys.ts";
+import { generateSubgroupMessage } from "../../../lib/team_subgroups.ts";
+import {
+  DiscordCreateMessageRequest,
+  DiscordSnowflake,
+} from "../../../lib/discord_api/index.ts";
 
 export const handler: Handlers<string | null> = {
-  async POST(req, _ctx) {
+  async POST(_req, _ctx) {
     const message = await generateSubgroupMessage("promo-a", 4);
 
     const discord = inject(InjectKey.DISCORD_API);

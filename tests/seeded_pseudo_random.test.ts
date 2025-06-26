@@ -1,5 +1,5 @@
 import { expect } from "jsr:@std/expect";
-import { SeededPseudoRandom } from "../lib/PseudoRandom.ts";
+import { SeededPseudoRandom } from "../lib/pseudo_random/index.ts";
 
 const test = Deno.test;
 
