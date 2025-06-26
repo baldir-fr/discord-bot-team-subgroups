@@ -1,4 +1,4 @@
-import {InMemoryDiscordApi} from "../lib/discord_api.ts";
+import {DiscordGuildMember, InMemoryDiscordApi} from "../lib/discord_api.ts";
 import {createHandler, ServeHandlerInfo} from "$fresh/server.ts";
 import manifest from "../fresh.gen.ts";
 import config from "../fresh.config.ts";
@@ -6,6 +6,7 @@ import {expect} from "jsr:@std/expect";
 import {inject, provide,} from "../_dependency_injection/dependency_container.ts";
 import {InjectKey} from "../_dependency_injection/injection_keys.ts";
 import {SeededPseudoRandom} from "../lib/PseudoRandom.ts";
+import {toShuffledArray} from "../lib/array_shuffle.ts";
 
 const test = Deno.test;
 const acceptance_test = Deno.test;
@@ -16,7 +17,7 @@ const CONN_INFO: ServeHandlerInfo = <ServeHandlerInfo> {
 
 acceptance_test("HTTP assert test.", async (t) => {
   provide(InjectKey.DISCORD_API, new InMemoryDiscordApi());
-  // provide(InjectKey.RANDOMNESS, new ());
+  provide(InjectKey.PSEUDO_RANDOM, new SeededPseudoRandom(1n));
   const handler = await createHandler(manifest, config);
 
   await t.step("#2 POST /interactions", async () => {
@@ -47,9 +48,71 @@ async function membersInRoleNamed(roleName: string) {
   return allMembers.filter((it) => it.roles.includes(roleId));
 }
 
-async function generateMessage(roleName: string, maxGroupSize: number) {
+type SubGroup = {
+  name: string;
+  members: DiscordGuildMember[];
+};
+
+async function generateMessage(roleName: string, groupSize: number) {
+  const groupNames = ["A", "B", "C", "D", "E", "F"];
+
   const membersInRole = await membersInRoleNamed(roleName);
-  return membersInRole.map((it) => it.nick).join(", ");
+
+  // Group size cannot be less than maxGroupSize-1
+  // Ventilate 1 member in some groups
+
+  const numberOfGroups = Math.floor(membersInRole.length / groupSize);
+
+  // 3
+
+  let membersWithoutGroup = membersInRole.length % groupSize;
+
+  const groupCompositions: number[] = [];
+  for (let i = 0; i < numberOfGroups; i++) {
+    let extraMember = 0;
+    if (membersWithoutGroup > 0) {
+      extraMember++;
+      membersWithoutGroup--;
+    }
+    groupCompositions.push(groupSize + extraMember);
+  }
+  // 3 + 1
+  // 3
+  // 3
+
+  // [ 4, 3, 3 ]
+
+  // current index
+  let currentMemberIndex = 0;
+  const groupsIndexes = groupCompositions.map((value) => {
+    // [ 4, 3, 3 ]
+    // 4 0 => [ 0, 1, 2, 3 ]
+    // 3 1 => [
+    // 3 2 =>
+
+    const indexes: number[] = [];
+    for (let i = 0; i < value; i++) {
+      indexes.push(currentMemberIndex);
+      currentMemberIndex++;
+    }
+    return indexes;
+  });
+  // [ [ 0, 1, 2, 3 ],  [ 4, 5, 6 ]   [ 7, 8, 9 ] ]
+
+  const subgroups: SubGroup[] = groupsIndexes.map((membersIndexes, index) => ({
+    name: groupNames[index],
+    members: membersIndexes.map((mi) => membersInRole[mi]),
+  }));
+
+  const subgroupsMessages = subgroups
+    .map((sg) => {
+      const sgMembers = sg.members.map((m) => m.nick).join("\n- ");
+      let s = `Groupe "${sg.name}" :
+- ${sgMembers}`;
+      return s;
+    });
+
+  return subgroupsMessages.join("\n\n");
 }
 
 test(
@@ -60,7 +123,21 @@ test(
 
     const message = await generateMessage("promo-a", 3);
     expect(message).toBe(
-      "Ada Lovelace, Alistair Cockburn, Jessica Kerr, Daniel Terhorst-North, Felienne Hermans, Grace Hopper, Houleymatou Baldé, JB Rainsberger, Kent Beck, Niklaus Wirth",
+      `Groupe "A" :
+- Ada Lovelace
+- Alistair Cockburn
+- Jessica Kerr
+- Daniel Terhorst-North
+
+Groupe "B" :
+- Felienne Hermans
+- Grace Hopper
+- Houleymatou Baldé
+
+Groupe "C" :
+- JB Rainsberger
+- Kent Beck
+- Niklaus Wirth`,
     );
   },
 );
