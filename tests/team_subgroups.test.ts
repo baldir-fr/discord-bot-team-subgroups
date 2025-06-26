@@ -6,7 +6,6 @@ import {expect} from "jsr:@std/expect";
 import {inject, provide,} from "../_dependency_injection/dependency_container.ts";
 import {InjectKey} from "../_dependency_injection/injection_keys.ts";
 import {SeededPseudoRandom} from "../lib/PseudoRandom.ts";
-import {toShuffledArray} from "../lib/array_shuffle.ts";
 
 const test = Deno.test;
 const acceptance_test = Deno.test;
@@ -53,7 +52,7 @@ type SubGroup = {
   members: DiscordGuildMember[];
 };
 
-async function generateMessage(roleName: string, groupSize: number) {
+async function generateSubgroupMessage(roleName: string, subgroupSize: number) {
   const groupNames = ["A", "B", "C", "D", "E", "F"];
 
   const membersInRole = await membersInRoleNamed(roleName);
@@ -61,11 +60,11 @@ async function generateMessage(roleName: string, groupSize: number) {
   // Group size cannot be less than maxGroupSize-1
   // Ventilate 1 member in some groups
 
-  const numberOfGroups = Math.floor(membersInRole.length / groupSize);
+  const numberOfGroups = Math.floor(membersInRole.length / subgroupSize);
 
   // 3
 
-  let membersWithoutGroup = membersInRole.length % groupSize;
+  let membersWithoutGroup = membersInRole.length % subgroupSize;
 
   const groupCompositions: number[] = [];
   for (let i = 0; i < numberOfGroups; i++) {
@@ -74,7 +73,7 @@ async function generateMessage(roleName: string, groupSize: number) {
       extraMember++;
       membersWithoutGroup--;
     }
-    groupCompositions.push(groupSize + extraMember);
+    groupCompositions.push(subgroupSize + extraMember);
   }
   // 3 + 1
   // 3
@@ -121,7 +120,7 @@ test(
     provide(InjectKey.DISCORD_API, new InMemoryDiscordApi());
     provide(InjectKey.PSEUDO_RANDOM, new SeededPseudoRandom(1n));
 
-    const message = await generateMessage("promo-a", 3);
+    const message = await generateSubgroupMessage("promo-a", 3);
     expect(message).toBe(
       `Groupe "A" :
 - Ada Lovelace
